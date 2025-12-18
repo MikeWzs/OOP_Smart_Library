@@ -12,6 +12,10 @@ public class Member {
     public String getName() {
         return name;
     }
+    
+   public int getBorrowedCount() {
+        return count;
+    }
 
     public void borrowItem(LibraryResource item) {
         if (count >= 3) {

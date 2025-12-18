@@ -52,8 +52,9 @@ System.out.println("""
             System.out.println("+===================================+");
             System.out.printf("| User Aktif: %-21s |\n", truncate(currentMember.getName(), 21));
             System.out.println("+===================================+");
-            System.out.println("| 1. Lihat Koleksi (Buku/Media)     |");
+            System.out.println("| 1. Lihat Koleksi                  |");
             System.out.println("| 2. Pinjam Barang                  |");
+            System.out.println("| 3. Kembalikan Barang              |");
             System.out.println("| 4. Info Member (Cek Pinjaman)     |");
             System.out.println("| 5. Hitung Denda (Jurnal Progresif)|");
             System.out.println("| 6. GANTI MEMBER / DAFTAR BARU     |");
@@ -95,9 +96,11 @@ System.out.println("""
 
                 case 3:
                     currentMember.showBorrowedItems();
-                    System.out.print("Masukkan ID Barang yang ingin dikembalikan: ");
-                    String returnId = sc.nextLine();
-                    currentMember.returnItem(returnId);
+                    if (currentMember.getBorrowedCount() > 0) {
+                        System.out.print("Masukkan ID Barang yang ingin dikembalikan: ");
+                        String returnId = sc.nextLine();
+                        currentMember.returnItem(returnId);
+                    }
                     break;
 
                 case 4:
@@ -111,16 +114,34 @@ System.out.println("""
                     
                     if (fineItem != null) {
                         System.out.print("Hari terlambat: ");
-                        int days = sc.nextInt();
+                        while (!sc.hasNextInt()) {
+                            System.out.print("Input harus angka. Hari terlambat: ");
+                            sc.next();
+                        }
+                    int days = sc.nextInt();
+                    sc.nextLine();
+                    if (days < 0) {
+                        System.out.println("Error: Hari terlambat tidak bisa negatif.");
+                    } else {
                         double fine = fineItem.calculateFine(days);
                         System.out.println("=== Rincian Denda ===");
                         System.out.println("Item: " + fineItem.getTitle());
                         System.out.println("Tipe: " + fineItem.getClass().getSimpleName());
+                        
+                        if (fineItem instanceof Journal) {
+                            if (days <= 3) {
+                                System.out.println("Ket: Tarif flat Rp 2.000/hari (1-3 hari).");
+                            } else {
+                                System.out.println("Ket: 3 hari pertama @Rp 2.000 + sisa hari @Rp 5.000.");
+                                System.out.printf("Hitungan: (3 x 2000) + (%d x 5000)\n", (days - 3));
+                            }
+                        }
                         System.out.printf("Total: Rp %.2f\n", fine);
-                    } else {
-                        System.out.println("Barang tidak ada di list pinjaman Anda.");
                     }
-                    break;
+                } else {
+                    System.out.println("Barang tidak ada di list pinjaman Anda.");
+                }
+                break;
                 
                 case 6:
                     System.out.println("\n=== PILIH MEMBER ===");
@@ -129,6 +150,10 @@ System.out.println("""
                     }
                     System.out.println((memberList.size()+1) + ". + Daftar Member Baru");
                     System.out.print("Pilih: ");
+                    while (!sc.hasNextInt()) {
+                        System.out.print("Input harus angka. Pilih: ");
+                        sc.next();
+                    }
                     int mChoice = sc.nextInt();
                     sc.nextLine();
                     
@@ -142,6 +167,8 @@ System.out.println("""
                         memberList.add(newMember);
                         currentMember = newMember;
                         System.out.println("Member baru dibuat & login.");
+                    } else {
+                        System.out.println("Error: Pilihan member tidak valid!");
                     }
                     break;
 
