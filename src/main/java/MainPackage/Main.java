@@ -5,22 +5,29 @@ import java.util.ArrayList;
 
 public class Main {
 
+    private static ArrayList<Member> memberList = new ArrayList<>();
+    private static Member currentMember = null;
+    
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
         Shelf<Book> bookShelf = new Shelf<>();
-        bookShelf.addItem(new Book("B01", "Java Programming", "Rack A"));
-        bookShelf.addItem(new Book("B02", "OOP Design Patterns", "Rack B"));
-        bookShelf.addItem(new Book("B03", "Clean Code", "Rack A"));
+        bookShelf.addItem(new Book("B01", "Java Programming", "Rack A", 2));
+        bookShelf.addItem(new Book("B02", "OOP Design Patterns", "Rack B", 1));
+        bookShelf.addItem(new Book("B03", "Clean Code", "Rack A", 3));
 
         Shelf<Multimedia> mediaShelf = new Shelf<>();
-        mediaShelf.addItem(new Multimedia("M01", "Tutorial Java (DVD)", "Rack C"));
-        mediaShelf.addItem(new Multimedia("M02", "National Geographic (CD)", "Rack D"));
+        mediaShelf.addItem(new Multimedia("M01", "Tutorial Java (DVD)", "Rack C", 1));
+        mediaShelf.addItem(new Multimedia("M02", "National Geographic (CD)", "Rack D", 2));
         
         Shelf<Journal> journalShelf = new Shelf<>();
-        journalShelf.addItem(new Journal("J01", "IEEE Computer Science", "Rack E"));
+        journalShelf.addItem(new Journal("J01", "IEEE Computer Science", "Rack E", 5));
 
-        Member member = new Member("Mahasiswa Binus");
+        memberList.add(new Member("Adi (Mhs)"));
+        memberList.add(new Member("Calvin (Mhs)"));
+        memberList.add(new Member("Christian (Mhs)"));
+        memberList.add(new Member("Ko Sinji (Dosen)"));
+        currentMember = memberList.get(0);
 
                                                                                                                                                                                                                                             
                                                                                                                                                                                                                                
@@ -43,11 +50,13 @@ System.out.println("""
             System.out.println("\n+===================================+");
             System.out.println("|        SMART LIBRARY MENU         |");
             System.out.println("+===================================+");
+            System.out.printf("| User Aktif: %-21s |\n", truncate(currentMember.getName(), 21));
+            System.out.println("+===================================+");
             System.out.println("| 1. Lihat Koleksi (Buku/Media)     |");
             System.out.println("| 2. Pinjam Barang                  |");
-            System.out.println("| 3. Kembalikan Barang              |");
-            System.out.println("| 4. Lihat Barang Pinjaman          |");
-            System.out.println("| 5. Hitung Denda (Calculate Fine)  |");
+            System.out.println("| 4. Info Member (Cek Pinjaman)     |");
+            System.out.println("| 5. Hitung Denda (Jurnal Progresif)|");
+            System.out.println("| 6. GANTI MEMBER / DAFTAR BARU     |");
             System.out.println("| 0. Keluar                         |");
             System.out.println("+===================================+");
             System.out.print("Pilih menu: ");
@@ -70,7 +79,7 @@ System.out.println("""
                     break;
 
                 case 2:
-                    System.out.print("Masukkan ID Barang yang ingin dipinjam (Contoh: B01): ");
+                    System.out.print("Masukkan ID Barang (Contoh: B01): ");
                     String borrowId = sc.nextLine();
                     
                     LibraryResource itemToBorrow = bookShelf.findItem(borrowId);
@@ -78,35 +87,61 @@ System.out.println("""
                     if (itemToBorrow == null) itemToBorrow = journalShelf.findItem(borrowId);
 
                     if (itemToBorrow != null) {
-                        member.borrowItem(itemToBorrow);
+                        currentMember.borrowItem(itemToBorrow);
                     } else {
                         System.out.println("Error: ID '" + borrowId + "' tidak ditemukan di katalog.");
                     }
                     break;
 
                 case 3:
-                    member.showBorrowedItems();
+                    currentMember.showBorrowedItems();
                     System.out.print("Masukkan ID Barang yang ingin dikembalikan: ");
                     String returnId = sc.nextLine();
-                    member.returnItem(returnId);
+                    currentMember.returnItem(returnId);
                     break;
 
                 case 4:
-                    member.showBorrowedItems();
+                    currentMember.showBorrowedItems();
                     break;
 
                 case 5:
-                    System.out.print("Masukkan ID Barang yang terlambat: ");
+                    System.out.print("ID Barang yang terlambat: ");
                     String fineId = sc.nextLine();
-                    LibraryResource fineItem = member.getBorrowedItem(fineId);
+                    LibraryResource fineItem = currentMember.getBorrowedItem(fineId);
                     
                     if (fineItem != null) {
-                        System.out.print("Berapa hari terlambat? ");
+                        System.out.print("Hari terlambat: ");
                         int days = sc.nextInt();
                         double fine = fineItem.calculateFine(days);
-                        System.out.printf("Total Denda untuk '%s': Rp %.2f\n", fineItem.getTitle(), fine);
+                        System.out.println("=== Rincian Denda ===");
+                        System.out.println("Item: " + fineItem.getTitle());
+                        System.out.println("Tipe: " + fineItem.getClass().getSimpleName());
+                        System.out.printf("Total: Rp %.2f\n", fine);
                     } else {
-                        System.out.println("Error: Anda tidak sedang meminjam barang dengan ID tersebut.");
+                        System.out.println("Barang tidak ada di list pinjaman Anda.");
+                    }
+                    break;
+                
+                case 6:
+                    System.out.println("\n=== PILIH MEMBER ===");
+                    for(int i=0; i<memberList.size(); i++) {
+                        System.out.println((i+1) + ". " + memberList.get(i).getName());
+                    }
+                    System.out.println((memberList.size()+1) + ". + Daftar Member Baru");
+                    System.out.print("Pilih: ");
+                    int mChoice = sc.nextInt();
+                    sc.nextLine();
+                    
+                    if(mChoice > 0 && mChoice <= memberList.size()) {
+                        currentMember = memberList.get(mChoice - 1);
+                        System.out.println("Login sebagai: " + currentMember.getName());
+                    } else if (mChoice == memberList.size() + 1) {
+                        System.out.print("Masukkan Nama Member Baru: ");
+                        String newName = sc.nextLine();
+                        Member newMember = new Member(newName);
+                        memberList.add(newMember);
+                        currentMember = newMember;
+                        System.out.println("Member baru dibuat & login.");
                     }
                     break;
 
@@ -119,26 +154,26 @@ System.out.println("""
             }
 
         } while (choice != 0);
-        
         sc.close();
     }
 
-    private static void printTableHeader() {
-        System.out.println("+------+------------------------------+--------------+");
-        System.out.println("| ID   | Judul                        | Lokasi       |");
-        System.out.println("+------+------------------------------+--------------+");
+       private static void printTableHeader() {
+        System.out.println("+------+------------------------------+----------+-------+");
+        System.out.println("| ID   | Judul                        | Lokasi   | Stok  |");
+        System.out.println("+------+------------------------------+----------+-------+");
     }
 
     private static void printTableFooter() {
-        System.out.println("+------+------------------------------+--------------+");
+        System.out.println("+------+------------------------------+----------+-------+");
     }
 
     private static void printShelfItems(Shelf<? extends LibraryResource> shelf) {
         for (LibraryResource item : shelf.getItems()) {
-            System.out.printf("| %-4s | %-28s | %-12s |\n", 
+            System.out.printf("| %-4s | %-28s | %-8s | %-5d |\n",
                     item.getResourceID(), 
                     truncate(item.getTitle(), 28), 
-                    item.getLocation());
+                    item.getLocation(),
+                    item.getStock());
         }
     }
     

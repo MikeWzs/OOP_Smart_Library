@@ -15,17 +15,22 @@ public class Member {
 
     public void borrowItem(LibraryResource item) {
         if (count >= 3) {
-            System.out.println("Error: Batas peminjaman tercapai (Maksimal 3 item).");
+            System.out.println("Gagal: " + name + " sudah meminjam 3 barang (Batas Maksimal).");
+            return;
+        }
+
+        if (item.getStock() <= 0) {
+            System.out.println("Gagal: Stok untuk '" + item.getTitle() + "' Habis!");
             return;
         }
         
+        item.decreaseStock();
         borrowedItems[count++] = item;
         
-        //  Memanggil method interface jika item adalah Loanable
+        System.out.println("Sukses: " + name + " meminjam '" + item.getTitle() + "'");
+        
         if (item instanceof Loanable) {
             ((Loanable) item).borrowItem();
-        } else {
-            System.out.println(item.getTitle() + " berhasil dipinjam.");
         }
     }
 
@@ -35,7 +40,8 @@ public class Member {
             if (borrowedItems[i].getResourceID().equalsIgnoreCase(resourceID)) {
                 LibraryResource item = borrowedItems[i];
                 
-                // Geser array untuk mengisi kekosongan
+                item.increaseStock();
+                
                 for (int j = i; j < count - 1; j++) {
                     borrowedItems[j] = borrowedItems[j + 1];
                 }
@@ -43,7 +49,8 @@ public class Member {
                 count--;
                 found = true;
 
-                //  Panggil method interface returnItem
+                System.out.println("Sukses: " + name + " mengembalikan '" + item.getTitle() + "'");
+                
                 if (item instanceof Loanable) {
                     ((Loanable) item).returnItem();
                 } else {
@@ -53,7 +60,7 @@ public class Member {
             }
         }
         if (!found) {
-            System.out.println("Error: Item dengan ID " + resourceID + " tidak ditemukan dalam daftar peminjaman.");
+            System.out.println("Error: Anda tidak meminjam barang dengan ID " + resourceID);
         }
     }
 
@@ -63,7 +70,7 @@ public class Member {
             System.out.println("(Tidak ada barang yang dipinjam)");
         } else {
             for (int i = 0; i < count; i++) {
-                System.out.println((i + 1) + ". " + borrowedItems[i].displayInfo());
+                System.out.println("- " + borrowedItems[i].getResourceID() + ": " + borrowedItems[i].getTitle());
             }
         }
     }

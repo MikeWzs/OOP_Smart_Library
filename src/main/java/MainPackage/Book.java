@@ -2,8 +2,8 @@ package MainPackage;
 
 public class Book extends LibraryResource implements Loanable {
 
-    public Book(String id, String title, String location) {
-        super(id, title, location);
+    public Book(String id, String title, String location, int stock) {
+        super(id, title, location, stock);
     }
 
     @Override

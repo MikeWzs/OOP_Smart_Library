@@ -4,11 +4,13 @@ public abstract class LibraryResource {
     protected String resourceID;
     protected String title;
     protected String location;
+    protected int stock;
 
-    public LibraryResource(String resourceID, String title, String location) {
+    public LibraryResource(String resourceID, String title, String location, int stock) {
         this.resourceID = resourceID;
         this.title = title;
         this.location = location;
+        this.stock = stock;
     }
 
     public abstract double calculateFine(int daysLate);
@@ -24,8 +26,20 @@ public abstract class LibraryResource {
     public String getLocation() {
         return location;
     }
+    
+    public int getStock() {
+        return stock;
+    }
+
+    public void decreaseStock() {
+        if (stock > 0) stock--;
+    }
+
+    public void increaseStock() {
+        stock++;
+    }
 
     public String displayInfo() {
-        return resourceID + " | " + title + " | " + location;
+        return String.format("%-5s | %-30s | %-10s | Stock: %d", resourceID, title, location, stock);
     }
 }
