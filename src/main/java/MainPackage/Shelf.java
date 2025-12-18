@@ -2,7 +2,9 @@ package MainPackage;
 
 import java.util.ArrayList;
 
-public class Shelf<T> {
+//  Generic Class Shelf<T>
+// Menambahkan 'extends LibraryResource' agar bisa mengakses getResourceID() untuk pencarian.
+public class Shelf<T extends LibraryResource> {
     private ArrayList<T> items = new ArrayList<>();
 
     public void addItem(T item) {
@@ -13,9 +15,13 @@ public class Shelf<T> {
         return items;
     }
 
-    public void displayItems() {
+//  Mencari item berdasarkan ID untuk validasi peminjaman
+    public T findItem(String id) {
         for (T item : items) {
-            System.out.println(item);
+            if (item.getResourceID().equalsIgnoreCase(id)) {
+                return item;
+            }
         }
+        return null;
     }
 }
